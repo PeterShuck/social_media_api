@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_10_21_164647) do
+ActiveRecord::Schema[7.1].define(version: 2023_10_21_165701) do
   create_table "comments", force: :cascade do |t|
     t.string "message"
     t.datetime "commented_at"
@@ -32,6 +32,16 @@ ActiveRecord::Schema[7.1].define(version: 2023_10_21_164647) do
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
+  create_table "ratings", force: :cascade do |t|
+    t.integer "rating"
+    t.datetime "rated_at"
+    t.integer "user_id", null: false
+    t.integer "rater_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_ratings_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email"
     t.string "name"
@@ -44,4 +54,6 @@ ActiveRecord::Schema[7.1].define(version: 2023_10_21_164647) do
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
   add_foreign_key "posts", "users"
+  add_foreign_key "ratings", "users"
+  add_foreign_key "ratings", "users", column: "rater_id"
 end
