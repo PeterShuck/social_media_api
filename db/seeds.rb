@@ -1,23 +1,22 @@
 # Handy way to seed via csv's, outlined by arjunvenkat - https://gist.github.com/arjunvenkat/1115bc41bf395a162084
 require 'csv'
 
-users_raw = File.read(Rails.root.join('lib', 'seeds', 'users.csv'))
-# posts_raw = File.read(Rails.root.join('lib', 'seeds', 'posts.csv'))
-# comments_raw = File.read(Rails.root.join('lib', 'seeds', 'comments.csv'))
-ratings_raw = File.read(Rails.root.join('lib', 'seeds', 'ratings.csv'))
+# Commas inside of quotes were breaking the csv parsing. We'll temporarily substitue '|' (a value not present in any of
+# the csv files) for them, and sub them back once the csv parses.
+def read_clean_and_parse_raw_csv file_path
+  CSV.parse(File.read(file_path).gsub(/"(.*?)"/) { |match| match.gsub(',', '|') }, headers: true, quote_char: "\x00")
+end
 
-users_csv = CSV.parse(users_raw, headers: true, encoding: 'ISO-8859-1')
-# posts_csv = CSV.parse(posts_raw, headers: true, encoding: 'ISO-8859-1') # quote_char included to disable the quote policing of text they may use '"' within it
-# comments_csv = CSV.parse(comments_raw, headers: true, encoding: 'ISO-8859-1')
-# puts comments_csv
-ratings_csv = CSV.parse(ratings_raw, headers: true, encoding: 'ISO-8859-1')
-# puts ratings_csv
+puts "Parsing csv files..."
+users_csv = read_clean_and_parse_raw_csv(Rails.root.join('lib', 'seeds', 'users.csv'))
+posts_csv = read_clean_and_parse_raw_csv(Rails.root.join('lib', 'seeds', 'posts.csv'))
+comments_csv = read_clean_and_parse_raw_csv(Rails.root.join('lib', 'seeds', 'comments.csv'))
+ratings_csv = read_clean_and_parse_raw_csv(Rails.root.join('lib', 'seeds', 'ratings.csv'))
 
-# Destroy existing data to reset to reset to default for proper testing
+# Destroy existing data to reset to reset to default for proper testing. Since all models are dependent on User
+# calling User.destroy_all should suffice in clearing the db
+puts "Emptying Database of existing records..."
 User.destroy_all
-Post.destroy_all
-Comment.destroy_all
-Rating.destroy_all
 
 puts "Seeding Users..."
 users_csv.each do |row|
@@ -27,42 +26,54 @@ users_csv.each do |row|
   t.name = row['name']
   t.github_username = row['github_username']
   t.registered_at = row['registered_at']
+  t.created_at = row['created_at']
+  t.updated_at = row['updated_at']
   t.save
 end
 
 puts "There are now #{User.count} rows in the users table"
 
-# puts "Seeding Posts..."
-# debugger
-# posts_csv.each do |row|
-#   t = Post.new
-#   t.title = row['title']
-#   t.body = row['body']
-#   t.user_id = row['user_id']
-#   t.posted_at = row['posted_at']
-#   t.save
-# end
+puts "Seeding Posts..."
+posts_csv.each do |row|
+  t = Post.new
+  t.id = row['id']
+  # Sub the commas back into the strings that were previously cleaned
+  t.title = row['title']&.gsub("|", ",")
+  t.body = row['body']&.gsub("|", ",")
+  t.user = User.find(row['user_id'])
+  t.posted_at = row['posted_at']
+  t.created_at = row['created_at']
+  t.updated_at = row['updated_at']
+  t.save
+end
 
-# puts "There are now #{Post.count} rows in the users table"
+puts "There are now #{Post.count} rows in the posts table"
 
-# puts "Seeding Comments..."
-# comments_csv.each do |row|
-#   t = Comment.new
-#   t.message = row['message']
-#   t.post_id = row['post_id']
-#   t.user_id = row['user_id']
-#   t.commented_at = row['commented_at']
-# end
+puts "Seeding Comments..."
+comments_csv.each do |row|
+  t = Comment.new
+  t.id = row['id']
+  t.message = row['message']&.gsub("|", ",")
+  t.post_id = row['post_id']
+  t.user_id = row['user_id']
+  t.commented_at = row['commented_at']
+  t.created_at = row['created_at']
+  t.updated_at = row['updated_at']
+  t.save
+end
 
-# puts "There are now #{Comment.count} rows in the users table"
+puts "There are now #{Comment.count} rows in the comments table"
 
 puts "Seeding Ratings..."
 ratings_csv.each do |row|
   t = Rating.new
+  t.id = row['id']
   t.rating = row['rating']
   t.rater = User.find(row['rater_id'])
   t.user = User.find(row['user_id'])
   t.rated_at = row['rated_at']
+  t.created_at = row['created_at']
+  t.updated_at = row['updated_at']
   t.save
 end
 
