@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
-  resources :ratings, only: [:index, :show, :create]
-  resources :comments, only: [:index, :show, :create, :destroy]
-  resources :posts, only: [:index, :show, :create]
-  resources :users, only: [:index, :show]
+  resources :posts, only: [:index, :show, :create] do
+    resources :comments, shallow: true
+  end
+  resources :users, only: [:index, :show] do
+    resources :ratings, shallow: true
+  end
+  resources :comments, only: [:show]
+  resources :ratings, only: [:show]
 end

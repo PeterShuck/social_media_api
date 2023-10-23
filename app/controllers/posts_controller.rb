@@ -16,7 +16,9 @@ class PostsController < ApplicationController
   end
 
   def create
-    @post = Post.new(post_params)
+    @post = Post.new
+    @post.title = params[:title]
+    @post.body = params[:body]
     @post.user = user
     @post.posted_at = DateTime.now
     if @post.save
