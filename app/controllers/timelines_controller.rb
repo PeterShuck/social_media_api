@@ -31,12 +31,18 @@ class TimelinesController < ApplicationController
   def comments
     @user.comments.map do |comment|
       post_author = comment.post.user
-      { "media_type" => "commented_on_post", "post_author" => post_author.name, "post_author_average_rating" => post_author.average_rating, "most_recent_action" => comment.commented_at }
+      { "media_type" => "commented_on_post", "id" => comment.id, "post_id" => comment.post_id, "post_author" => post_author.name, "post_author_average_rating" => post_author.average_rating, "most_recent_action" => comment.commented_at }
+    end
+  end
+
+  def posts
+    @user.posts.map do |post|
+      { "media_type" => "new_post", "id" => post.id, "title" => post.title, "number_of_comments" => post.number_of_comments, "most_recent_action" => post.posted_at }
     end
   end
 
   def sorted_response
-    (github_responses + comments).sort_by{ |h| h["most_recent_action"] }.reverse!
+    (github_responses + comments + posts).sort_by{ |h| h["most_recent_action"] }.reverse!
   end
 
   def user_not_found
