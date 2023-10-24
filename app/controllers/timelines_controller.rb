@@ -41,8 +41,14 @@ class TimelinesController < ApplicationController
     end
   end
 
+  def high_ratings
+    @user.ratings.high.map do |rating|
+      { "media_type" => "passed_four_stars", "id" => rating.id, "user_average_rating" => rating.user.average_rating, "most_recent_action" => rating.rated_at }
+    end
+  end
+
   def sorted_response
-    (github_responses + comments + posts).sort_by{ |h| h["most_recent_action"] }.reverse!
+    (github_responses + comments + posts + high_ratings).sort_by{ |h| h["most_recent_action"] }.reverse!
   end
 
   def user_not_found
