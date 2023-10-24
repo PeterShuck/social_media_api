@@ -23,7 +23,8 @@ class TimelinesController < ApplicationController
                         rescue NoMethodError => e
                           Rails.logger.error e
                           Rails.logger.info "The GitHub API rate limit has likely been exceeded"
-                          []
+                          # We should return something to the user of the API to let them know what happened
+                          [{ "media_type" => "github_error", "error" => "The GitHub API rate limit has been exceeded", "most_recent_action" => DateTime.now }]
                         end
   end
 
