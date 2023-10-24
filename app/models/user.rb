@@ -6,22 +6,22 @@ class User < ApplicationRecord
 
   def pushed_commits
     return [] unless github_response.present?
-    github_response.select { |event| event.type == "PushEvent"}.map{ |e| { number_of_commits: e.payload.size, repository: e.repo.name, created_at: e.created_at } }
+    github_response.select { |event| event.type == "PushEvent"}.map{ |e| { "media_type" => "pushed_commits", "number_of_commits" => e.payload.size, "repository" => e.repo.name, "most_recent_action" => e.created_at.to_datetime } }
   end
 
   def opened_pull_requests
     return [] unless github_response.present?
-    github_response.select { |event| event.type == "PullRequestEvent" && event.payload.action == "opened" }.map{ |e| { pr_number: e.payload.number, repository: e.repo.name, created_at: e.created_at } }
+    github_response.select { |event| event.type == "PullRequestEvent" && event.payload.action == "opened" }.map{ |e| { "media_type" => "opened_pr", "pr_number" => e.payload.number, "repository" => e.repo.name, "most_recent_action" => e.created_at.to_datetime } }
   end
 
   def merged_pull_requests
     return [] unless github_response.present?
-    github_response.select { |event| event.type == "PullRequestEvent" && event.payload.action == "closed" && event.payload }.map{ |e| { pr_number: e.payload.number, repository: e.repo.name, created_at: e.created_at } }
+    github_response.select { |event| event.type == "PullRequestEvent" && event.payload.action == "closed" && event.payload }.map{ |e| { "media_type" => "merged_pr", "pr_number" => e.payload.number, "repository" => e.repo.name, "most_recent_action" => e.created_at.to_datetime } }
   end
 
   def new_repositories
     return [] unless github_response.present?
-    github_response.select { |event| event.type == "CreateEvent" && event.payload.ref_type == "repository" }.map{ |e| { repository: e.repo.name, created_at: e.created_at } }
+    github_response.select { |event| event.type == "CreateEvent" && event.payload.ref_type == "repository" }.map{ |e| { "media_type" => "new_repo", "repository" => e.repo.name, "most_recent_action" => e.created_at.to_datetime } }
   end
 
   protected
