@@ -7,4 +7,7 @@ Rails.application.routes.draw do
   end
   resources :comments, only: [:show]
   resources :ratings, only: [:show]
+
+  # custom routes
+  get "/timelines/:user_id", to: "timelines#get_timeline_for_user" # It seems we're unable to send the email through a get for safety reasons, we'll have to make do with the id for now
 end
