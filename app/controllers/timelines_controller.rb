@@ -18,7 +18,13 @@ class TimelinesController < ApplicationController
   end
 
   def github_responses
-    @github_responses = @user.merged_pull_requests + @user.pushed_commits + @user.new_repositories + @user.opened_pull_requests
+    @github_responses = begin
+                          @user.merged_pull_requests + @user.pushed_commits + @user.new_repositories + @user.opened_pull_requests
+                        rescue NoMethodError => e
+                          Rails.logger.error e
+                          Rails.logger.info "The GitHub API rate limit has likely been exceeded"
+                          []
+                        end
   end
 
   def sorted_response
