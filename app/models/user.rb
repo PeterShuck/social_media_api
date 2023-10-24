@@ -4,6 +4,16 @@ class User < ApplicationRecord
   has_many :ratings, class_name: 'Rating', foreign_key: 'user_id', dependent: :destroy
   has_many :ratings_given, class_name: 'Rating', foreign_key: 'rater_id', dependent: :destroy
 
+  def average_rating
+    arr = ratings.map{ |r| r.rating }
+    # Avoid divide by 0
+    return 0 if arr.length == 0
+    # Determine the true average with .inject block
+    avg = arr.inject{ |sum, number| sum + number }.to_f / arr.size
+    # Trick to round to the nearest .5, which is what I'm assuming the UI will have assets for
+    (avg * 2.0).round/2.0
+  end
+
   def pushed_commits
     return [] unless github_response.present?
     github_response.select { |event| event.type == "PushEvent"}&.map{ |e| { "media_type" => "pushed_commits", "number_of_commits" => e.payload.size, "repository" => e.repo.name, "most_recent_action" => e.created_at.to_datetime } }
