@@ -117,6 +117,6 @@ curl -X DELETE http://localhost:3000/comments/24356
   approach has been approved.
 * Authentication. This will be needed to register new users to the API and streamline the API calls that need to refer to
   the current user.
-* Pagination. This will enhancement performance of the Index API calls (especially the timeline).
+* Pagination. This will enhance performance of the Index API calls (especially the timeline).
 * Search. Especially for the Timeline, I would want to index data returned for a user to drastically improve performance
   of the API there.
