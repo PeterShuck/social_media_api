@@ -52,6 +52,6 @@ class TimelinesController < ApplicationController
   end
 
   def user_not_found
-      render json: { error: "Cannot find User" }, status: :not_found
+    render json: { error: "Cannot find User" }, status: :not_found
   end
 end

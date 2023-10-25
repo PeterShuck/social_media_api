@@ -1,4 +1,5 @@
 class CommentsController < ApplicationController
+  rescue_from ActiveRecord::RecordNotFound, with: :comment_not_found
 
   def index
     @comments = post.comments # return only comments for this post
@@ -7,12 +8,8 @@ class CommentsController < ApplicationController
   end
 
   def show
-    begin
-      @comment = Comment.find(params[:id])
-      render json: @comment
-    rescue ActiveRecord::RecordNotFound
-      render json: { error: "Cannot find Comment" }, status: :not_found
-    end
+    @comment = Comment.find(params[:id])
+    render json: @comment
   end
 
   def create
@@ -54,5 +51,9 @@ class CommentsController < ApplicationController
     rescue ActiveRecord::RecordNotFound
       render json: { error: "Cannot find parent Post" }, status: :not_found
     end
+  end
+
+  def comment_not_found
+    render json: { error: "Cannot find Comment" }, status: :not_found
   end
 end

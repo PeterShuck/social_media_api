@@ -1,4 +1,5 @@
 class PostsController < ApplicationController
+  rescue_from ActiveRecord::RecordNotFound, with: :post_not_found
 
   def index
     @posts = Post.all
@@ -7,12 +8,8 @@ class PostsController < ApplicationController
   end
 
   def show
-    begin
-      @post = Post.find(params[:id])
-      render json: @post
-    rescue ActiveRecord::RecordNotFound
-      render json: { error: "Cannot find Post" }, status: :not_found
-    end
+    @post = Post.find(params[:id])
+    render json: @post
   end
 
   def create
@@ -40,5 +37,9 @@ class PostsController < ApplicationController
     rescue ActiveRecord::RecordNotFound
       render json: { error: "Cannot find User for #{params[:user]}" }, status: :not_found
     end
+  end
+
+  def post_not_found
+    render json: { error: "Cannot find Post" }, status: :not_found
   end
 end

@@ -1,4 +1,6 @@
 class RatingsController < ApplicationController
+  rescue_from ActiveRecord::RecordNotFound, with: :comment_not_found
+
   def index
     @ratings = user.ratings
 
@@ -6,12 +8,8 @@ class RatingsController < ApplicationController
   end
 
   def show
-    begin
     @rating = Rating.find(params[:id])
     render json: @rating
-    rescue ActiveRecord::RecordNotFound
-      render json: { error: "Cannot find Rating" }, status: :not_found
-    end
   end
 
   def create
@@ -47,5 +45,9 @@ class RatingsController < ApplicationController
     rescue ActiveRecord::RecordNotFound
       render json: { error: "Cannot find User for #{params[:rater]}" }, status: :not_found
     end
+  end
+
+  def comment_not_found
+    render json: { error: "Cannot find Rating" }, status: :not_found
   end
 end
