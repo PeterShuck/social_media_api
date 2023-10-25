@@ -24,21 +24,21 @@ class PostsController < ApplicationController
     if @post.save
       render json: @post, status: :created
     else
-      render json: { error: 'Unable to create post' }, status: :unprocessable_entity
+      render json: { error: @post.errors }, status: :unprocessable_entity
     end
   end
 
   private
 
   def post_params
-    params.require(:post).permit(:title, :body)
+    params.require(:post).permit(:title, :body, :user)
   end
 
   def user
     begin
-      return User.find_by(email: params[:email]) # email for the time being until we have authentication
+      return User.find_by(email: params[:user]) # email for the time being until we have authentication
     rescue ActiveRecord::RecordNotFound
-      render json: { error: "Cannot find User for #{params[:email]}" }, status: :not_found
+      render json: { error: "Cannot find User for #{params[:user]}" }, status: :not_found
     end
   end
 end

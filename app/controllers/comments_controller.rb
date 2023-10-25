@@ -24,7 +24,7 @@ class CommentsController < ApplicationController
     if @comment.save
       render json: @comment, status: :created
     else
-      render json: { error: 'Unable to create comment' }, status: :unprocessable_entity
+      render json: { error: @comment.errors }, status: :unprocessable_entity
     end
   end
 
@@ -37,14 +37,14 @@ class CommentsController < ApplicationController
   private
 
   def comment_params
-    params.require(:comment).permit(:message, :email)
+    params.require(:comment).permit(:message, :user)
   end
 
   def user
     begin
-      return User.find_by(email: params[:email]) # email for the time being until we have authentication
+      return User.find_by(email: params[:user]) # email for the time being until we have authentication
     rescue ActiveRecord::RecordNotFound
-      render json: { error: "Cannot find User for #{params[:email]}" }, status: :not_found
+      render json: { error: "Cannot find User for #{params[:user]}" }, status: :not_found
     end
   end
 

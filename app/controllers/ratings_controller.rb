@@ -23,14 +23,14 @@ class RatingsController < ApplicationController
     if @rating.save
       render json: @rating, status: :created
     else
-      render json: { error: 'Unable to create rating' }, status: :unprocessable_entity
+      render json: { error: @rating.errors }, status: :unprocessable_entity
     end
   end
 
   private
 
   def rating_params
-    params.require(:rating).permit(:rating, :email) # we need to find a way to get user here too
+    params.require(:rating).permit(:rating, :rater) # we need to find a way to get user here too
   end
 
   def user
@@ -43,9 +43,9 @@ class RatingsController < ApplicationController
 
   def rater
     begin
-      return User.find_by(email: params[:email]) # email for the time being until we have authentication
+      return User.find_by(email: params[:rater]) # email for the time being until we have authentication
     rescue ActiveRecord::RecordNotFound
-      render json: { error: "Cannot find User for #{params[:rater_email]}" }, status: :not_found
+      render json: { error: "Cannot find User for #{params[:rater]}" }, status: :not_found
     end
   end
 end
