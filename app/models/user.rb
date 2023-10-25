@@ -4,6 +4,11 @@ class User < ApplicationRecord
   has_many :ratings, class_name: 'Rating', foreign_key: 'user_id', dependent: :destroy
   has_many :ratings_given, class_name: 'Rating', foreign_key: 'rater_id', dependent: :destroy
 
+  def as_json(options={})
+    options[:methods] = %i(average_rating)
+    super
+  end
+
   def average_rating
     arr = ratings.map{ |r| r.rating }
     # Avoid divide by 0
